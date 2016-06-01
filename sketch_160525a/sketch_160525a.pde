@@ -13,16 +13,18 @@ int r;
 
   void setup(){
       minim = new Minim(this);  
-        song = minim.loadFile("awesomeTrack.mp3", 512);
+        song = minim.loadFile("Best_Song_Ever.wav", 512);
     size(800,800);
     pictureOfRecord= loadImage("record.jpeg");
     size(pictureOfRecord.width, pictureOfRecord.height);  
-    song.play();
     
   }
   void draw(){
     if(mousePressed){
-    r++;
+    r+=90;
+    song.play();
+    }else{
+    song.pause();
     }
      rotateImage(pictureOfRecord, r);
     image(pictureOfRecord,0,0);
