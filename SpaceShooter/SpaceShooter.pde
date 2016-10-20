@@ -6,11 +6,55 @@ Ship ship;
 private int direction;
 private ArrayList<Laser> lasers;
 private ArrayList<Asteriod> asteriods;
+private ArrayList<PowerUp> powerUps;
 //private ArrayList<Laser> toRemove;
+private boolean shot = false;
+private boolean powerUp = false;
+
+void onIntersection() {
+  for (Asteriod a : asteriods) {
+    for (Laser l : lasers) {
+      if (a.getY()+a.getHeight() >= l.getY()-l.getHeight()) {
+        shot = true;
+        print("Hi");
+        lasers.remove(l);
+        break;
+      } else {
+        shot = false;
+      }
+    }
+    if (shot) {
+      asteriods.remove(a);
+      break;
+    }
+  }
+  for(PowerUp p : powerUps){
+  for(Laser l : lasers){
+        if (p.getY()+p.getHeight() >= l.getY()-l.getHeight()) {
+        powerUp = true;
+        print("Hi");
+        lasers.remove(l);
+        break;
+      } else {
+        powerUp = false;
+      }
+  }
+  }
+}
+
+void detectLosers(){
+for(Asteriod a : asteriods){
+if(a.getY() >= 970){
+  fill(200,0,0);
+text("LOSER LOSER LOSER LOSER LOSER LOSER LOSER LOSER LOSER", (float) 900 / 2, (float) 900 / 2);
+}
+}
+}
 void setup() {
   lasers = new ArrayList<Laser>();
   asteriods = new ArrayList<Asteriod>();
-  asteriods.add(new Asteriod(400/2,-300,84,81,"asteriod.png",2));
+  powerUps = new ArrayList<PowerUp>();
+  asteriods.add(new Asteriod(400/2, -300, 84, 81, "asteriod.png", 2));
   //toRemove = new ArrayList<Laser>();
   size(900, 900);
   ship = new Ship(800/2, 700, 16, 22, "ship.jpg");
@@ -20,20 +64,38 @@ void draw() {
   print(lasers.size());
   background(0, 0, 0);
   ship.render();
+  powerUps.add(new PowerUp(900/2, 400, 100, 100));
   ship.detectCollision();
-  for(Laser e : lasers){
-  e.render();
-  if(e.getY()<=0){
-  removeBullet(e);
-  break;
+  onIntersection();
+  detectLosers();
+  if (asteriods.size() == 0) {
+    fill(0, 200, 0);
+    //scale(200,200);
+    text("YOU WINNNNNNNN", (float) 900/2, (float) 900/2);
   }
+  for (Laser e : lasers) {
+    e.render();
+    if(powerUp){
+    e.setWidth(100);
+    e.setHeight(100);
+    }else{
+    e.setWidth(16);
+    e.setHeight(22);
+    }
+    if (e.getY()<=0) {
+      removeBullet(e);
+      break;
+    }
   }
-  for(Asteriod e: asteriods){
-  e.render();
-  
-  for(Laser b : lasers){
-  //if(){}
+  for (Asteriod e : asteriods) {
+    e.render();
+
+    for (Laser b : lasers) {
+      //if(){}
+    }
   }
+  for(PowerUp p : powerUps){
+  p.render();
   }
   if (direction == 1) {
     ship.setX(ship.getX() + 1);
@@ -42,12 +104,12 @@ void draw() {
   }
 }// in draw method 
 
-public void removeBullet(Laser e){
-lasers.remove(e);
+public void removeBullet(Laser e) {
+  lasers.remove(e);
 }
 
-public void removeAsteriod(Asteriod e){
-asteriods.remove(e);
+public void removeAsteriod(Asteriod e) {
+  asteriods.remove(e);
 }
 
 //2. Create a SpaceShip Class inside your sketch 
@@ -77,8 +139,8 @@ void keyPressed()
     } else if (keyCode == LEFT)
     {
       direction = 2;
-    } else if(keyCode == UP){
-    lasers.add(new Laser(ship.getX(),ship.getY(),16,22,"bullet.png",5));
+    } else if (keyCode == UP) {
+      lasers.add(new Laser(ship.getX(), ship.getY(), 16, 22, "bullet.png", 5));
     }
   }
 }
@@ -217,13 +279,13 @@ public class Ship {
   public void detectCollision() {
     if (getX()<=-20+getWidth()) {
       setX(getX()+1);
-    } else if(getX()>=870+getWidth()){
+    } else if (getX()>=870+getWidth()) {
       setX(getX()-1);
     }
   }
 }
 
-public class Laser{
+public class Laser {
   private int xPos;
   private int yPos;
   private int width;
@@ -239,7 +301,7 @@ public class Laser{
     this.spriteName = spriteName;
     this.speed = speed;
   }
-    public int getX() {
+  public int getX() {
     return xPos;
   }
   public int getY() {
@@ -269,18 +331,17 @@ public class Laser{
   public void setSpriteName(String spriteName) {
     this.spriteName = spriteName;
   }
-  public int getSpeed(){
-  return speed;
+  public int getSpeed() {
+    return speed;
   }
-  public void render(){
-  PImage photo = loadImage(spriteName);
-  setY(getY()-getSpeed());
-  image(photo,getX(),getY(),getWidth(),getHeight());
+  public void render() {
+    PImage photo = loadImage(spriteName);
+    setY(getY()-getSpeed());
+    image(photo, getX(), getY(), getWidth(), getHeight());
   }
-  
 }
 
-public class Asteriod{
+public class Asteriod {
   private int xPos;
   private int yPos;
   private int width;
@@ -296,7 +357,7 @@ public class Asteriod{
     this.spriteName = spriteName;
     this.speed = speed;
   }
-    public int getX() {
+  public int getX() {
     return xPos;
   }
   public int getY() {
@@ -326,12 +387,55 @@ public class Asteriod{
   public void setSpriteName(String spriteName) {
     this.spriteName = spriteName;
   }
-  public int getSpeed(){
-  return speed;
+  public int getSpeed() {
+    return speed;
   }
-   public void render(){
-  PImage photo = loadImage(spriteName);
-  setY(getY()+getSpeed());
-  image(photo,getX(),getY(),getWidth(),getHeight());
+  public void render() {
+    PImage photo = loadImage(spriteName);
+    setY(getY()+getSpeed());
+    image(photo, getX(), getY(), getWidth(), getHeight());
   }
 }
+
+public class PowerUp{
+    private int xPos;
+  private int yPos;
+  private int width;
+  private int height;
+    public PowerUp(int xPos, int yPos, int width, int height) {
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.width = width;
+    this.height = height;
+  }
+ public int getX() {
+    return xPos;
+  }
+  public int getY() {
+    return yPos;
+  }
+  public int getWidth() {
+    return width;
+  }
+  public int getHeight() {
+    return height;
+  }
+  public void setX(int xPos) {
+    this.xPos = xPos;
+  }
+  public void setY(int yPos) {
+    this.yPos = yPos;
+  }
+  public void setWidth(int width) {
+    this.width = width;
+  }
+  public void setHeight(int height) {
+    this.height = height;
+  }
+  public void render() {
+    ////PImage photo = loadImage(spriteName);
+    //setY(getY()+getSpeed());
+    //image(photo, getX(), getY(), getWidth(), getHeight());
+    fill(0,0,200);
+    ellipse(getX(), getY(), getWidth(), getHeight());
+  }}
